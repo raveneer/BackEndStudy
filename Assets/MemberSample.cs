@@ -7,16 +7,17 @@ using UnityEngine.SceneManagement;
 
 public class MemberSample : MonoBehaviour
 {
-
     //비동기로 가입, 로그인을 할때에는 Update()에서 처리를 해야합니다. 이 값은 Update에서 구현하기 위한 플래그 값 입니다.
-    BackendReturnObject bro = new BackendReturnObject();
-    bool isSuccess = false;
+    private BackendReturnObject bro = new BackendReturnObject();
+
+    private bool isSuccess = false;
 
     // 테스트 아이디 비밀번호
-    string id = "customid";
-    string pw = "thebackend";
+    private string id = "customid";
 
-    void Start()
+    private string pw = "thebackend";
+
+    private void Start()
     {
         Debug.Log("뒤끝 SDK 초기화");
 
@@ -33,12 +34,12 @@ public class MemberSample : MonoBehaviour
     public void InitializeBackend()
     {
         Debug.Log(Backend.Utils.GetServerTime());
-        if(!Backend.Utils.GetGoogleHash().Equals(""))
+        if (!Backend.Utils.GetGoogleHash().Equals(""))
             Debug.Log(Backend.Utils.GetGoogleHash());
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (isSuccess)
         {
@@ -92,7 +93,6 @@ public class MemberSample : MonoBehaviour
     {
         Debug.Log("-------------LoginWithTheBackendToken-------------");
         Debug.Log(Backend.BMember.LoginWithTheBackendToken().ToString());
-
     }
 
     public void ALoginWithTheBackendToken()
@@ -108,15 +108,15 @@ public class MemberSample : MonoBehaviour
         });
     }
 
-
-     //뒤끝 RefreshToken 을 통해 뒤끝 AccessToken 을 재발급 받습니다
+    //뒤끝 RefreshToken 을 통해 뒤끝 AccessToken 을 재발급 받습니다
     public void RefreshTheBackendToken()
     {
         Debug.Log("-------------RefreshTheBackendToken-------------");
         Debug.Log(Backend.BMember.RefreshTheBackendToken().ToString());
     }
 
-    public void ARefreshTheBackendToken(){
+    public void ARefreshTheBackendToken()
+    {
         Debug.Log("-------------ARefreshTheBackendToken-------------");
         Backend.BMember.RefreshTheBackendToken(isComplete =>
         {
@@ -143,7 +143,7 @@ public class MemberSample : MonoBehaviour
         });
     }
 
-    // 회원 탈퇴 
+    // 회원 탈퇴
     public void SignOut()
     {
         Debug.Log("-------------SignOut-------------");
@@ -158,14 +158,15 @@ public class MemberSample : MonoBehaviour
         //{
         //    Debug.Log(isComplete.ToString());
         //});
-        Backend.BMember.SignOut("hhhhhhhhhhh",isComplete =>
-        {
-            Debug.Log(isComplete.ToString());
-        });
+        Backend.BMember.SignOut("hhhhhhhhhhh", isComplete =>
+         {
+             Debug.Log(isComplete.ToString());
+         });
     }
 
-    string nickname = "nick";
-    // 닉네임 생성 
+    private string nickname = "nick";
+
+    // 닉네임 생성
     public void CreateNickname()
     {
         Debug.Log("-------------CreateNickname-------------");
@@ -207,7 +208,8 @@ public class MemberSample : MonoBehaviour
         Debug.Log("-------------GetUserInfo-------------");
         BackendReturnObject userinfo = Backend.BMember.GetUserInfo();
         Debug.Log(userinfo);
-        if(userinfo.IsSuccess()){
+        if (userinfo.IsSuccess())
+        {
             JsonData Userdata = userinfo.GetReturnValuetoJSON()["row"]["nickname"];
 
             // 닉네임 여부를 확인 하는 로직
@@ -221,7 +223,6 @@ public class MemberSample : MonoBehaviour
                 Debug.Log("NickName is null");
             }
         }
-
     }
 
     public void AGetUserInfo()
@@ -297,5 +298,24 @@ public class MemberSample : MonoBehaviour
             Debug.Log(bro);
         });
 #endif
+    }
+
+    /// <summary>
+    /// 1회 전송 가능한 로그 최대 크기는 400kb 이다.
+    /// 그러면 200kb가 넘으면 한번 보내고, 문제가 발생하면 한번 보내고 이런 식으로 하는게 좋을지?
+    /// </summary>
+    public void TestGameLog()
+    {
+        //InsertLog(String logType, Param param)->BackendReturnObject
+
+        // example
+        Param param = new Param();
+
+        string logMessage = $"this is {nickname}'s test game log";
+        param.Add(logMessage, "message");
+        param.Add(System.Environment.StackTrace, "callStack"); // 콜스택 남기는게 그리 의미가 있어보이지는 않는다...
+
+        Backend.GameInfo.InsertLog("testLog", param);
+        Debug.Log($"log pushed {logMessage}");
     }
 }
